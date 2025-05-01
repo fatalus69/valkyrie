@@ -43,9 +43,9 @@ __   ____ _| | | ___   _ _ __ _  ___
 }
 
 init :: proc(_: string) {
-  fmt.println("This Command will help you create your valkyrie.toml configuration.")
+  fmt.println("This Command will help you create your valkyrie.json configuration.")
   user_input: string
-  if os.exists("valkyrie.toml") {
+  if os.exists("valkyrie.json") {
     fmt.printf("Configuration already exists. Want to overwrite it? [y, n] (n) ")
     
     user_input = getUserInput()
