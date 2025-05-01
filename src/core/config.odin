@@ -6,20 +6,12 @@ import "core:os"
 import "core:encoding/json"
 
 general_types: []string = {"name", "type", "description", "license"}
+filename: string = "valkyrie.json"
 
 writeToConfig :: proc(data: map[string]string) {
-  path: string = "./valkyrie.json"
-  //TODO: Rename function, no one would get what its doing
   if checkForConfig() == false {
     //read file then write to it
   } else {
-    //file, err := os.open("valkyrie.json", os.O_WRONLY | os.O_TRUNC, 0o644)
-    //defer(os.close(file))
-    
-    //if err != nil && err != os.ERROR_NONE {
-      //os.exit(1)
-    //}
-
     json_data, json_err := json.marshal(data, {
       pretty = true
     })
@@ -28,7 +20,7 @@ writeToConfig :: proc(data: map[string]string) {
       os.exit(1)
     }
 
-    write_err := os.write_entire_file_or_err(path, json_data)
+    write_err := os.write_entire_file_or_err(filename, json_data)
     if write_err != nil {
       fmt.eprintln("Error writing to configuration file: ", write_err)
       os.exit(1)
@@ -37,20 +29,30 @@ writeToConfig :: proc(data: map[string]string) {
   }
 }
 
-// Return false if config exists  
-checkForConfig :: proc() -> (bool) {
-  filename: string = "valkyrie.json"
-  if os.exists(filename) {
-    return false
-  }
-  
-  file, err := os.open(filename, os.O_WRONLY | os.O_CREATE | os.O_TRUNC, 0o644)
-  defer(os.close(file))
+writeDependency :: proc(pkg: string) {
+  _ = checkForConfig()
+  name, version := getNameAndVersion(pkg)
 
-  if err != nil && err != os.ERROR_NONE {
-    fmt.eprintln("Failed to create ", filename, ":", err)
+  data, ok := os.read_entire_file_from_filename(filename)
+  if !ok {
+    fmt.eprintln("Error reading from", filename)
     os.exit(1)
   }
+  defer(delete(data))
 
-  return true
+  json_data, parse_err := json.parse(data)
+  if parse_err != nil {
+    fmt.eprintln("Error parsing configuration", parse_err)
+  }
+  defer(json.destroy_value(json_data))
+
+  fmt.println(json_data)
+
+  //json_data["dependencies"] = map[]
+  
+
+}
+
+readDependencies :: proc() /*-> (map[int][]string)*/ {
+
 }

@@ -21,6 +21,8 @@ StringMapper :: struct {
 commands :: []Command {
   Command{"init", false, init, "Initialize a project"},
   Command{"help", false, help, "Display all commands"}, 
+  Command{"engrave", true, engrave, "Install a package from source"},
+  Command{"forge", false, forge, "Install packages from config"}
 }
 
 help :: proc(_: string) {
@@ -99,3 +101,12 @@ getUserInput :: proc() -> (string) {
   
   return strings.trim_space(strings.clone(string(buf[:n])))
 }
+
+engrave :: proc(pkg: string) {
+  core.writeDependency(pkg) 
+}
+
+forge :: proc(_: string) {
+
+}
+
