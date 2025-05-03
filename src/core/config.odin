@@ -1,3 +1,4 @@
+#+feature dynamic-literals
 package core;
 
 import "core:fmt"
@@ -5,7 +6,13 @@ import "core:strings"
 import "core:os"
 import "core:encoding/json"
 
-general_types: []string = {"name", "type", "description", "license"}
+//Prototype. If it stays TODO: move to /src/types/core.odin
+json_structure :: struct {
+  name: string,
+  type: string,
+  dependencies: map[string]map[string]string
+}
+
 filename: string = "valkyrie.json"
 
 writeToConfig :: proc(data: map[string]string) {
@@ -31,7 +38,7 @@ writeToConfig :: proc(data: map[string]string) {
 
 writeDependency :: proc(pkg: string) {
   _ = checkForConfig()
-  name, version := getNameAndVersion(pkg)
+  name, version, type := getNameAndVersion(pkg)
 
   data, ok := os.read_entire_file_from_filename(filename)
   if !ok {
@@ -46,13 +53,36 @@ writeDependency :: proc(pkg: string) {
   }
   defer(json.destroy_value(json_data))
 
-  fmt.println(json_data)
+  dependency_map: map[string]map[string]string
 
-  //json_data["dependencies"] = map[]
+  dependency_map[name] = {
+    "type" = type,
+    "version" = version
+  }
+  json_struc := new(json_structure)
+  json_map := json_data.(json.Object)
   
+  json_struc.name = json_map["name"].(string)
+  json_struc.type = json_map["type"].(string)
+  json_struc.dependencies = dependency_map
 
+  json_builder, build_err := json.marshal(json_struc, {
+    pretty = true
+  })
+
+  if build_err != nil {
+    fmt.eprintln("Error serializing Json", build_err)
+    os.exit(1)
+  }
+
+  write_err := os.write_entire_file_or_err(filename, json_builder)
+
+  if write_err != nil {
+    fmt.eprintln("Error writing to file", write_err)
+    os.exit(1)
+  }
 }
 
-readDependencies :: proc() /*-> (map[int][]string)*/ {
+readDependencies :: proc() /*-> ()*/ {
 
 }

@@ -24,8 +24,8 @@ checkForConfig :: proc() -> (bool) {
 
 //Should also detect commit hashes.
 //TODO: Verify this:x
-getNameAndVersion :: proc (pkg: string) -> (string, string) {
-  name, branch, rest: string
+getNameAndVersion :: proc (pkg: string) -> (string, string, string) {
+  name, branch, type, rest: string
   patterns : []string ={"/-", "/tree", "/blob"}
   
   for pattern in patterns {
@@ -38,7 +38,8 @@ getNameAndVersion :: proc (pkg: string) -> (string, string) {
   name_part, _ := strings.remove(pkg, name, -1)
   rest = strings.trim_space(name_part)
 
-  if strings.contains(rest, "git") {
+  if strings.contains(pkg, "git") {
+    type = "vsc"
     if strings.contains(rest, "tree") {
       //get branch if present in url
       branch = strings.split(strings.split(rest, "tree/")[1], "/")[0]
@@ -51,5 +52,5 @@ getNameAndVersion :: proc (pkg: string) -> (string, string) {
       }
     }
   }
-  return name, branch
+  return name, branch, type 
 }
