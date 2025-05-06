@@ -22,7 +22,10 @@ commands :: []Command {
   Command{"init", false, init, "Initialize a project"},
   Command{"help", false, help, "Display all commands"}, 
   Command{"engrave", true, engrave, "Install a package from source"},
-  Command{"forge", false, forge, "Install packages from config"}
+  Command{"forge", false, forge, "Install packages from config"},
+  Command{"remove", false, remove, "Remove a Package"},
+  Command{"update", false, update, "Update all or a specific Pacakge"},
+  Command{"clean-install", false, clean_install, "Remove all packages and install them again"}
 }
 
 help :: proc(_: string) {
@@ -86,22 +89,6 @@ init :: proc(_: string) {
   core.writeToConfig(config_data)
 }
 
-getUserInput :: proc() -> (string) {
-  buf: [256]byte
-  n, err := os.read(os.stdin, buf[:])
-  
-  if err != nil {
-    if err == os.ERROR_EOF {
-      return ""
-    }
-
-    fmt.eprintln("Error reading: ", err)
-    os.exit(1)
-  }
-  
-  return strings.trim_space(strings.clone(string(buf[:n])))
-}
-
 engrave :: proc(pkg: string) {
   core.writeDependency(pkg) 
 }
@@ -110,3 +97,20 @@ forge :: proc(_: string) {
 
 }
 
+remove :: proc(pkg: string) {
+  
+}
+
+update :: proc(pkg: string) {
+  if pkg != "" {
+    //Update specifc
+  }
+
+  //Update all as default
+}
+
+clean_install :: proc(_: string) {
+  //get packages and loop a remove over them 
+  
+  forge("")
+}

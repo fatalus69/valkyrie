@@ -10,7 +10,12 @@ import "core:encoding/json"
 json_structure :: struct {
   name: string,
   type: string,
-  dependencies: map[string]map[string]string
+  dependencies: map[string]dependency
+}
+
+dependency :: struct {
+  type: string,
+  version: string
 }
 
 filename: string = "valkyrie.json"
@@ -53,12 +58,13 @@ writeDependency :: proc(pkg: string) {
   }
   defer(json.destroy_value(json_data))
 
-  dependency_map: map[string]map[string]string
+  dependency_map: map[string]dependency
 
   dependency_map[name] = {
-    "type" = type,
-    "version" = version
+    type = type,
+    version = version
   }
+
   json_struc := new(json_structure)
   json_map := json_data.(json.Object)
   

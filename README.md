@@ -4,11 +4,12 @@
 ## GENERAL:
 - CLI Name: valkyrie
 - Package folder: runepkg
-- Config Files: valkyrie.toml (dependencies and settings) & valkyrie.lock (pin exact versions, tags or commits)
+- Config Files: valkyrie.json (dependencies and settings) & valkyrie.lock (pin exact versions, tags or commits)
 - Import style: import "runepkg:foo"
 
 ### Commands:
-- valkyrie install [package] – installs one package from ressource or all packages in valkyrie.toml
+- valkyrie engrave [package] – installs one package from ressource
+- valkyrie forge - Installs all packages from valkyrie.json
 - valkyrie remove [package] - removes desired package
 - valkyrie update [package] - updates all or desired package
 - valkyrie init – starts an interactive setup
@@ -16,8 +17,7 @@
 - valkyrie list - list installed packages
 
 ##### Maybe:
-- valkyrie doctor - check setup of toml
-- valkyrie validate - check for invalid toml
+- valkyrie doctor - check setup of json
 - valkyrie graph - show dependency graph (future feature)
 
 #### Dependency Format:
@@ -32,12 +32,18 @@
 #### Stuff I should consider:
 - A script that replaces import "runepkg:foo" with relative paths during build or a wrapper that does that during odin build
 
-#### Example of valkyire.toml:
-````toml
-[dependencies]
-foo = { git = "https://github.com/user/foo", rev = "main" }
-bar = { git = "https://github.com/user/bar", tag = "v1.2.3" }
-baz = { path = "../local_baz" }
+#### Example of valkyire.json:
+````json
+{
+    name: "example",
+    type: "library",
+    dependencies: {
+        "https://github.com/vendor/repo": {
+            type: "git",
+            branch: "main"
+        }
+    }
+}
 ````
 #### Structure:
 ```
@@ -47,32 +53,12 @@ src/
 │   ├── commands.odin         # All commands and dispatch logic
 │   ├── parser.odin           # os.args[] parser & help output
 ├── core/
-│   ├── config.odin           # valkyrie.toml reading/writing
+│   ├── config.odin           # valkyrie.json reading/writing
 │   ├── lockfile.odin         # valkyrie.lock reading/writing
 │   ├── resolver.odin         # dependency resolver (git clones, paths, etc)
 │   ├── installer.odin        # install/update/remove logic
-│   ├── util.odin             # helper stuff (string handling, error printing, etc)
+│   ├── helpers.odin          # helper stuff (string handling, error printing, etc)
 └── types/
     ├── package.odin          # structs for dependencies, versions, etc
-    └── config_schema.odin    # if needed for TOML struct definitions
-```
-
-#### Important Structs:
-```odin
-Command = struct {
-    name: string,
-    requires_argument: bool,
-    fn: proc(arg: string),
-}
-
-Dependency = struct {
-    name: string,
-    source_type: enum { git, path },
-    url_or_path: string,
-    version: string, // rev/tag/branch
-}
-
-ProjectConfig = struct {
-    dependencies: map[string]Dependency,
-}
+    └── config_schema.odin    # if needed for json struct definitions
 ```
